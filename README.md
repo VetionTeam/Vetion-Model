@@ -1,4 +1,4 @@
 # Vetion-Model
 Classification code and dataset
-https://www.kaggle.com/datasets/vetion/vegetables-names-images
+https://www.kaggle.com/datasets/vetion/vege-quality
 
