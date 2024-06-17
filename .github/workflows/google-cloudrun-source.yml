@@ -1,4 +1,4 @@
-name: Deploy to Cloud Run from Source
+name: Deploy ML Model to Cloud Run
 
 on:
   push:
@@ -11,22 +11,21 @@ env:
 
 jobs:
   deploy:
-    # Add 'id-token' with the intended permissions for workload identity federation
-    permissions:
-      contents: 'read'
-      id-token: 'write'
-
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
-      # NOTE: Alternative option - authentication via credentials json
+      - name: Download ML Model
+        run: |
+          mkdir -p model
+          wget -q https://github.com/VetionTeam/Vetion-Model/raw/main/MyModel%20%281%29.h5 -O model/MyModel.h5
+
       - name: Google Auth
         id: auth
-        uses: 'google-github-actions/auth@v0'
+        uses: google-github-actions/auth@v0
         with:
-         credentials_json: '${{ secrets.GCP_SA_KEY }}'
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
 
       - name: Deploy to Cloud Run
         id: deploy
@@ -34,9 +33,9 @@ jobs:
         with:
           service: ${{ env.SERVICE }}
           region: ${{ env.REGION }}
-          # NOTE: If required, update to the appropriate source folder
-          source: ./gcp-service
+          source: ./
+          # Specify the path to the model relative to the source directory
+          args: --model_path=main/MyModel\(1\).h5  # Adjust this based on your directory structure
 
-      # If required, use the Cloud Run url output in later steps
       - name: Show Output
         run: echo ${{ steps.deploy.outputs.url }}
